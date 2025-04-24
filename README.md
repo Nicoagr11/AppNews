@@ -27,3 +27,33 @@ Este proyecto es una aplicación de noticias desarrollada en **React + TypeScrip
 ```bash
 npm install
 npm start
+⚠️ Auditoría de seguridad
+Durante el desarrollo se utilizó react-scripts@5.0.1, la última versión estable de Create React App.
+
+Al ejecutar npm audit pueden aparecer advertencias relacionadas con dependencias internas como svgo, postcss, entre otras. Estas vulnerabilidades:
+
+No impactan el funcionamiento de la app.
+
+Provienen de paquetes que no son usados directamente.
+
+No tienen solución oficial sin degradar a versiones antiguas (ej: react-scripts@3.0.1), lo cual sí afectaría negativamente el proyecto.
+
+🛡️ La app es segura para entornos de desarrollo y despliegue, y se han tomado precauciones para mantener el entorno estable y actualizado.
+
+📁 Estructura de carpetas
+bash
+Copiar código
+src/
+├── components/       # Componentes reutilizables
+├── pages/            # Páginas principales
+├── services/         # Servicios y llamadas a API
+├── types/            # Tipado con TypeScript
+├── utils/            # Funciones utilitarias
+└── App.tsx           # Enrutamiento principal
+💬 Comentarios finales
+Este proyecto fue realizado con el objetivo de demostrar mis habilidades como desarrollador frontend. Cualquier feedback es bienvenido.
+
+Desarrollado por: Nico
+📧 Contacto: nicolasoctober@gmail.com
+📅 Fecha: Abril 2025
+
