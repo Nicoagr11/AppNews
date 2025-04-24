@@ -60,11 +60,12 @@ export const NewsModal: React.FC<Props> = ({ open, onClose, onSave, initialData 
           borderRadius: 3,
           padding: 2,
           backgroundColor: '#ffffff',
+          color: "orangered",
         },
       }}
     >
       <DialogTitle sx={{ fontWeight: 'bold' }}>
-        {initialData ? 'Editar Noticia' : 'Crear Noticia'}
+        {initialData ? 'Editar Noticia' : 'Nueva Noticia'}
       </DialogTitle>
 
       <Divider />
@@ -105,10 +106,10 @@ export const NewsModal: React.FC<Props> = ({ open, onClose, onSave, initialData 
       </DialogContent>
 
       <DialogActions sx={{ justifyContent: 'space-between', padding: '1.5rem' }}>
-        <Button onClick={onClose} variant="outlined">
+        <Button onClick={onClose} variant="outlined" sx={{ color: "orangered", borderColor: "orangered" }}>
           Cancelar
         </Button>
-        <Button onClick={handleSubmit} variant="contained">
+        <Button onClick={handleSubmit} variant="contained" sx={{ backgroundColor: "orangered" }}>
           Guardar
         </Button>
       </DialogActions>

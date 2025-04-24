@@ -1,33 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getNewsById, deleteNews } from '../api/newsService';
+import { getNewsById, deleteNews, updateNews } from '../api/newsService';
 import { News } from '../types/news';
+import { NewsModal } from '../components/NewsModal';
 import {
   Container,
   Typography,
-  Box,
   Button,
+  Stack,
   Dialog,
-  DialogActions,
   DialogTitle,
+  DialogActions,
+  Grid,
 } from '@mui/material';
-import { NewsModal } from '../components/NewsModal';
+import { Spinner } from '../components/Spinner'; // importar
+import { Navbar } from '../components/Navbar';
+import { SuggestedNewsList } from '../components/SuggestedNewsList';
+import { getNews } from '../api/newsService'; // Para obtener todas las noticias
 
 export const NewsDetailsPage: React.FC = () => {
   const { id } = useParams();
-  const [news, setNews] = useState<News | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
   const navigate = useNavigate();
+  const [news, setNews] = useState<News | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [allNews, setAllNews] = useState<News[]>([]);
 
   useEffect(() => {
-    if (id) {
-      getNewsById(id).then((data) => {
-        if (data) setNews(data);
-        else navigate('/'); // si no se encuentra, redirige
-      });
-    }
-  }, [id, navigate]);
+    const fetchNews = async () => {
+      if (id) {
+        const found = await getNewsById(id);
+        setNews(found ?? null);
+      }
+    };
+    fetchNews();
+  }, [id]);
 
   const handleDelete = async () => {
     if (id) {
@@ -36,77 +43,61 @@ export const NewsDetailsPage: React.FC = () => {
     }
   };
 
-  const handleEdit = () => {
-    setEditModalOpen(true);
+  useEffect(() => {
+    const fetchNews = async () => {
+      if (id) {
+        const found = await getNewsById(id);
+        setNews(found ?? null);
+      }
+  
+      const all = await getNews();
+      setAllNews(all);
+    };
+    fetchNews();
+  }, [id]);
+  
+  const getSuggestedNews = (): News[] => {
+    return allNews
+      .filter((n) => n.id !== id)
+      .sort(() => 0.5 - Math.random())
+      .slice(0, 3);
+  };
+  
+
+  const handleSave = async (data: Omit<News, 'id' | 'createdAt'>) => {
+    if (id) {
+      await updateNews(id, data);
+      const updated = await getNewsById(id);
+      setNews(updated ?? null);
+    }
+    setEditOpen(false);
   };
 
-  if (!news) return <Typography>Cargando...</Typography>;
+  if (!news) return <Spinner />;
 
   return (
-    <Container sx={{ mt: 4 }}>
-      <Button onClick={() => navigate(-1)} sx={{ mb: 2 }}>
-        ← Volver
-      </Button>
+    <div>
+        <Navbar
+  onEdit={() => setEditOpen(true)}
+  onDelete={() => setConfirmDeleteOpen(true)}
+/>
 
+<Container sx={{ mt: 4 }}>
+  <Grid container spacing={4}>
+    {/* Detalle principal */}
+      <Typography variant="h4" gutterBottom>{news.title}</Typography>
       {news.image && (
-        <img
-          src={news.image}
-          alt={news.title}
-          style={{
-            width: '100%',
-            maxHeight: '400px',
-            objectFit: 'cover',
-            borderRadius: '8px',
-          }}
-        />
+        <img src={news.image} alt={news.title} style={{ width: '100%', borderRadius: '8px', marginBottom: '1rem' }} />
       )}
+      <Typography variant="h6" color="text.secondary">{news.subtitle}</Typography>
+      <Typography variant="subtitle2" color="text.secondary">Por {news.author}</Typography>
+      <Typography variant="body1" sx={{ mt: 2 }}>{news.description}</Typography>
 
-      <Box mt={2}>
-        <Typography variant="h4" gutterBottom>
-          {news.title}
-        </Typography>
-        <Typography variant="h6" color="text.secondary">
-          {news.subtitle}
-        </Typography>
-        <Typography variant="subtitle2" color="text.secondary" sx={{ mt: 1 }}>
-          Por {news.author}
-        </Typography>
-        <Typography variant="body1" sx={{ mt: 3 }}>
-          {news.description}
-        </Typography>
-      </Box>
-
-      <Box mt={4} display="flex" gap={2}>
-        <Button variant="outlined" color="primary" onClick={handleEdit}>
-          Editar
-        </Button>
-        <Button variant="outlined" color="error" onClick={() => setConfirmDelete(true)}>
-          Eliminar
-        </Button>
-      </Box>
-
-      {/* Modal de edición */}
-      <NewsModal
-        open={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
-        onSave={(data) => {
-          // Lógica para actualizar
-          setNews({ ...news, ...data });
-          setEditModalOpen(false);
-        }}
-        initialData={news}
-      />
-
-      {/* Confirmación de borrado */}
-      <Dialog open={confirmDelete} onClose={() => setConfirmDelete(false)}>
-        <DialogTitle>¿Estás seguro de que querés eliminar esta noticia?</DialogTitle>
-        <DialogActions>
-          <Button onClick={() => setConfirmDelete(false)}>Cancelar</Button>
-          <Button onClick={handleDelete} color="error" variant="contained">
-            Eliminar
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Container>
+    {/* Lista sugerida */}
+      <Typography variant="h6" gutterBottom>Otras noticias</Typography>
+      <SuggestedNewsList news={getSuggestedNews()} onSelect={(n) => navigate(`/news/${n.id}`)} />
+  </Grid>
+</Container>
+    </div>
   );
 };

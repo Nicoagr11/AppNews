@@ -6,7 +6,7 @@ import { Navbar } from '../components/Navbar';
 import { NewsModal } from '../components/NewsModal';
 import { useNavigate } from 'react-router-dom';
 import { Spinner } from '../components/Spinner'; // importar
-import { Typography } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogTitle, Typography } from '@mui/material';
 import { HighlightedNews } from '../components/HighlightedNews';
 import { SuggestedNewsList } from '../components/SuggestedNewsList';
 import { NewsCarousel } from '../components/NewsCarousel';
@@ -16,6 +16,9 @@ export const Home: React.FC = () => {
   const [news, setNews] = useState<News[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [loading, setLoading] = useState(true); // nuevo estado
+  const [saving, setSaving] = useState(false);
+const [successDialogOpen, setSuccessDialogOpen] = useState(false);
+
   const navigate = useNavigate();
 
 const handleSelect = (news: News) => {
@@ -36,10 +39,34 @@ const loadNews = async () => {
     setModalOpen(true);
   };
 
-  const handleSave = async (data: Omit<News, 'id' | 'createdAt'>) => {
+  const handleSave = async (data: Omit<News, 'id'>) => {
+    setSaving(true);
     await createNews(data);
-    loadNews(); // recargar noticias
+    await loadNews(); // recargar noticias
+    setSaving(false);
+    setModalOpen(false);
+    setSuccessDialogOpen(true); // mostrar confirmación
   };
+  
+  {saving && (
+    <div
+      style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        height: '100vh',
+        width: '100vw',
+        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+        zIndex: 9999,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Spinner />
+    </div>
+  )}
+  
 
   return (
     <div>
@@ -64,6 +91,14 @@ const loadNews = async () => {
         onSave={handleSave}
       />
       <NewsCarousel news={news.slice(1)} onSelect={handleSelect} />
+      <Dialog open={successDialogOpen} onClose={() => setSuccessDialogOpen(false)}>
+  <DialogTitle>✅ Noticia creada exitosamente</DialogTitle>
+  <DialogActions>
+    <Button onClick={() => setSuccessDialogOpen(false)}>Cerrar</Button>
+  </DialogActions>
+</Dialog>
+
     </div>
+    
   );
 };
