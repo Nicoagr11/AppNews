@@ -6,7 +6,7 @@ import { Navbar } from '../components/Navbar';
 import { NewsModal } from '../components/NewsModal';
 import { useNavigate } from 'react-router-dom';
 import { Spinner } from '../components/Spinner'; // importar
-import { Button, Dialog, DialogActions, DialogTitle, Typography } from '@mui/material';
+import { Box, Button, Container, Dialog, DialogActions, DialogTitle, Typography } from '@mui/material';
 import { HighlightedNews } from '../components/HighlightedNews';
 import { SuggestedNewsList } from '../components/SuggestedNewsList';
 import { NewsCarousel } from '../components/NewsCarousel';
@@ -79,7 +79,7 @@ const loadNews = async () => {
   {loading ? (
     <Spinner />
   ) : (
-    <div style={{ flex: 1 }}>
+    <div style={{ flex: 1}}>
     <SuggestedNewsList news={getRandomNews(news.slice(1), 3)} onSelect={handleSelect} />
   </div>
   )}
@@ -90,7 +90,9 @@ const loadNews = async () => {
         onClose={() => setModalOpen(false)}
         onSave={handleSave}
       />
+      <Container>
       <NewsCarousel news={news.slice(1)} onSelect={handleSelect} />
+      </Container>
       <Dialog open={successDialogOpen} onClose={() => setSuccessDialogOpen(false)}>
   <DialogTitle>✅ Noticia creada exitosamente</DialogTitle>
   <DialogActions>
